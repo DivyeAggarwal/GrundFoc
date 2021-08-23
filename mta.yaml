@@ -1,0 +1,94 @@
+_schema-version: "3.2"
+ID: servicerequests
+description: Service Request
+version: 0.0.1
+modules:
+- name: servicerequests-dest-content
+  type: com.sap.application.content
+  requires:
+  - name: servicerequests-dest-srv
+    parameters:
+      content-target: true
+  - name: servicerequests-repo-host
+    parameters:
+      service-key:
+        name: servicerequests-repo-host-key
+  - name: servicerequests-uaa
+    parameters:
+      service-key:
+        name: servicerequests-uaa-key
+  parameters:
+    content:
+      instance:
+        destinations:
+        - Name: servicerequests_repo_host
+          ServiceInstanceName: servicerequests-html5-srv
+          ServiceKeyName: servicerequests-repo-host-key
+          sap.cloud.service: servicerequests
+        - Authentication: OAuth2UserTokenExchange
+          Name: servicerequests_uaa
+          ServiceInstanceName: servicerequests-xsuaa-srv
+          ServiceKeyName: servicerequests-uaa-key
+          sap.cloud.service: servicerequests
+        existing_destinations_policy: ignore
+  build-parameters:
+    no-source: true
+- name: servicerequests-app-content
+  type: com.sap.application.content
+  path: .
+  requires:
+  - name: servicerequests-repo-host
+    parameters:
+      content-target: true
+  build-parameters:
+    build-result: resources
+    requires:
+    - artifacts:
+      - servicerequests.zip
+      name: servicerequests
+      target-path: resources/
+- name: servicerequests
+  type: html5
+  path: .
+  build-parameters:
+    build-result: dist
+    builder: custom
+    commands:
+    - npm install
+    - npm run build:cf
+    supported-platforms: []
+resources:
+- name: servicerequests-dest-srv
+  type: org.cloudfoundry.managed-service
+  parameters:
+    config:
+      HTML5Runtime_enabled: true
+      init_data:
+        instance:
+          destinations:
+          - Authentication: NoAuthentication
+            Name: ui5
+            ProxyType: Internet
+            Type: HTTP
+            URL: https://ui5.sap.com
+          existing_destinations_policy: update
+      version: 1.0.0
+    service: destination
+    service-name: servicerequests-dest-srv
+    service-plan: lite
+- name: servicerequests-uaa
+  type: org.cloudfoundry.managed-service
+  parameters:
+    path: ./xs-security.json
+    service: xsuaa
+    service-name: servicerequests-xsuaa-srv
+    service-plan: application
+- name: servicerequests-repo-host
+  type: org.cloudfoundry.managed-service
+  parameters:
+    service: html5-apps-repo
+    service-name: servicerequests-html5-srv
+    service-plan: app-host
+parameters:
+  deploy_mode: html5-repo
+  enable-parallel-deployments: true
