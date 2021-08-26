@@ -20,6 +20,9 @@ sap.ui.define([
 		 * @override
 		 */
 		init : function () {
+//             var oUser = new sap.ushell.services.UserInfo();
+// var userId = oUser.getId();
+//             this.user = userId;
 			this.oListSelector = new ListSelector();
 			this._oErrorHandler = new ErrorHandler(this);
 

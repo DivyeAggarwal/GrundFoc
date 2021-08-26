@@ -7,7 +7,7 @@
                          title="{i18n>detailTitle}"
                          busy="{detailView>/busy}" busyIndicatorDelay="{detailView>/delay}">
         <semantic:content>
-            <ObjectHeader id="objectHeader" title="{ID}"></ObjectHeader>
+            <ObjectHeader id="objectHeader" title="{ID} {Name}"></ObjectHeader>
             <IconTabBar id="iconTabBar" class="sapUiResponsiveContentPadding">
                 <items>
                     <IconTabFilter id="iconTabBarInfo" icon="sap-icon://hint" tooltip="{i18n>detailIconTabBarInfo}">
@@ -16,7 +16,7 @@
                             <HBox>
                                 <Label class="infoTitle" text="Ticket ID"/>
                                 <Input id="infoTicketID" width="10rem" enabled="false"
-                                        value="{ID}">
+                                        >
                                        
                                 </Input>
                             </HBox>
@@ -93,7 +93,33 @@
                                             uploadComplete="onUploadComplete" change="onFileChange"/>
                             <Button id="uploadFileButton" text="{i18n>detailUploadFile}" press="onFileUpload"/>
                         </VBox>
-                        <Table id="attachmentsList"
+                        <UploadCollection id="UploadCollection" multiple="false" mode="SingleSelectMaster" change="onDocumentUpload" instantUpload="true"
+										selectionChange="onSelectionChange" uploadComplete="onUploadComplete" fileDeleted="onFileDeleted" beforeUploadStarts="onBeforeUploadStarts"
+										fileRenamed="onFileRenamed" uploadTerminated="onUploadTerminated" items="{path: 'AttachmentModel>/', templateShareable: true}"
+										noDataText="No Files exist. Please upload an URL/File" noDataDescription="No Files exist. Please upload an URL/File" showSeparators="All"
+										numberOfAttachmentsText="" uploadEnabled="true" uploadButtonInvisible="true" sameFilenameAllowed="false">
+										<toolbar>
+											<OverflowToolbar id="idUploadCollOtoolbar" width="100%">
+												<Title id="attachmentTitle" text="{i18n>Attachments}"/>
+												<ToolbarSpacer/>
+												<Button id="addLinkDocButton" text="{i18n>Add_Link}" press="addLinkDocUpload" enabled="true" visible="false" type="Transparent"/>
+												<UploadCollectionToolbarPlaceholder/>
+											</OverflowToolbar>
+										</toolbar>
+										<items>
+											<UploadCollectionItem documentId="{AttachmentModel>Name}" fileName="{AttachmentModel>Name}" url="{AttachmentModel>url}"
+												thumbnailUrl="{AttachmentModel>thumbnailUrl}" enableEdit="true" mimeType="{AttachmentModel>doctype}" enableDelete="true"
+												visibleDelete="false" visibleEdit="false" press="onOpeningFile">
+												<attributes>
+													<ObjectAttribute title="{UploadedBy}" text="Uploaded By: {AttachmentModel>CreatedBy}" active="false"/>
+													<ObjectAttribute title="{UploadedOn}" text="Uploaded On: {path : 'AttachmentModel>CreatedOn', formatter : '.formatAttribute'}"
+														active="false"/>
+													<ObjectAttribute title="{FileSize}" text="{path : 'AttachmentModel>docsize', formatter : '.formatFileSize'}" active="false"/>
+												</attributes>
+											</UploadCollectionItem>
+										</items>
+									</UploadCollection>
+                        <!-- <Table id="attachmentsList"
                                inset="false"
                                itemPress="onAttachmentPress"
                                noDataText="No attachments"
@@ -118,7 +144,7 @@
                                     </cells>
                                 </ColumnListItem>
                             </items>
-                        </Table>
+                        </Table> -->
                     </IconTabFilter>
                 </items>
             </IconTabBar>

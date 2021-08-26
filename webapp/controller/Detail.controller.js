@@ -24,7 +24,10 @@ sap.ui.define([
 		onInit : function () {
 			// Model used to manipulate control states. The chosen values make sure,
 			// detail page is busy indication immediately so there is no break in
-			// between the busy indication for loading the view's meta data
+            // between the busy indication for loading the view's meta data
+            // var oUser = new sap.ushell.services.UserInfo();
+            // var userId = oUser.getId();
+            // this.byId("infoTicketID").setValue(userId);
 			var oViewModel = new JSONModel({
 				busy : false,
 				delay : 0,
@@ -238,16 +241,16 @@ sap.ui.define([
         },
         _populateAttachmentsList: function(sPath) {
 			var oView = this.getView();
-			var list = oView.byId("attachmentsList");
+			// var list = oView.byId("attachmentsList");
 			var attachments = this.getModel().getObject(sPath).ServiceRequestAttachmentFolder;
 			var attachmentModel = new JSONModel(attachments);
 			oView.setModel(attachmentModel, "AttachmentModel");
 			oView.getModel("AttachmentModel").refresh();
-			var listItems = list.getItems(),
-				mockData = this.getOwnerComponent().mockData;
-			for (var i = 0; i < listItems.length; i++) {
-				listItems[i].data("uri", mockData ? (attachments[i].__metadata ? attachments[i].__metadata.uri + "/Binary/$value" : attachments[i]) : attachments[i].__metadata.uri + "/Binary/$value");
-			}
+			// var listItems = list.getItems(),
+			// 	mockData = this.getOwnerComponent().mockData;
+			// for (var i = 0; i < listItems.length; i++) {
+			// 	listItems[i].data("uri", mockData ? (attachments[i].__metadata ? attachments[i].__metadata.uri + "/Binary/$value" : attachments[i]) : attachments[i].__metadata.uri + "/Binary/$value");
+			// }
 			// this.app.setBusy(false);
         },
         _populateDescriptionsList: function(sPath) {
@@ -495,6 +498,29 @@ sap.ui.define([
 					}.bind(this)
 				});
 			}
+        },
+        onOpeningFile: function (oEvent) {
+			var url;
+			//Get the file size to understand item is a LINK or FILE
+			var sFileSize = oEvent.getSource().getAllAttributes()[2].getText();
+			if (sFileSize === "") { //Indicates LINK
+                url = oEvent.getSource().getUrl();
+                // var spath = oEvent.oSource.oBindingContexts.AttachmentModel.sPath
+                var oContextPath = oEvent.oSource.oBindingContexts.AttachmentModel.sPath;
+			var aPathParts = oContextPath.split("/");
+			var iIndex = aPathParts[aPathParts.length - 1]; //Index to delete into our array of objects
+			// var dealitem;
+			var attachModel = this.getView().getModel("AttachmentModel");
+			var attachArray = attachModel.getData();
+			url = attachArray[iIndex].DocumentLink;
+                // url = "https://my342860.crm.ondemand.com/sap/c4c/odata/v1/c4codataapi/ServiceRequestCollection('00163EAA3CFC1EEC809AB907237E7AB0')/ServiceRequestAttachmentFolder('00163EAA47B51EEC81A04542525CB2BD')/Binary/$value";
+
+			} else {
+				url = "/DocumentUploader_api/downloadFile?documentId=" + oEvent.getSource().getDocumentId() + "&documentName=" + oEvent.getSource()
+					.getFileName();
+			}
+			var win = window.open(url, '_blank');
+			win.focus();
 		},
 	});
 
