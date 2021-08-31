@@ -6,8 +6,16 @@ sap.ui.define([
     "sap/m/ListType",
     "sap/m/library",
     "sap/m/MessageBox",
-	"sap/m/MessageToast"
-], function (BaseController, JSONModel, formatter, FeedListItem, ListType, mobileLibrary, MessageBox, MessageToast) {
+    "sap/m/MessageToast",
+    "sap/m/Dialog",
+    "sap/m/DialogType",
+    "sap/m/Label",
+	"sap/m/Text",
+    "sap/m/TextArea",
+    "sap/m/Button",
+    "sap/m/ButtonType",
+    "sap/ui/core/Core"
+], function (BaseController, JSONModel, formatter, FeedListItem, ListType, mobileLibrary, MessageBox, MessageToast, Dialog, DialogType, Label,  Text, TextArea, Button, ButtonType, Core) {
 	"use strict";
 
 	// shortcut for sap.m.URLHelper
@@ -389,7 +397,8 @@ sap.ui.define([
 		uploadFile: function(e) {
 			var view = this.getView(),
 				model = view.getModel(),
-				sPath = view.getElementBinding().getPath();
+                sPath = view.getElementBinding().getPath();
+                var that=this;
 
 			if (!this.getOwnerComponent().mockData) {
 				var url = model.sServiceUrl + sPath + "/ServiceRequestAttachmentFolder",
@@ -409,9 +418,10 @@ sap.ui.define([
 					success: function() {
 						view.byId("fileUploader").clear();
                         this.fileToUpload = null;
-                        this.app.setBusy(false);
+                        that.app.setBusy(false);
 						MessageToast.show("The attachment was uploaded successfully");
-						this.getModel().refresh();
+                        that.getModel().refresh();
+                        this._populateAttachmentsList(view.getElementBinding().getPath());
 					}.bind(this),
 					error: function(jqXHR) {
 						var elm = jqXHR.responseXML.getElementsByTagName("message")[0];
@@ -521,6 +531,149 @@ sap.ui.define([
 			}
 			var win = window.open(url, '_blank');
 			win.focus();
+        },
+        onSetToAccept: function(oEvent) {
+			var patch = {ServiceRequestUserLifeCycleStatusCode: "6"},
+				oModel = this.getModel(),
+				oView = this.getView();
+            this.app.setBusy(true);
+            var that=this;
+			var sPath = oView.getElementBinding().getPath(),
+				url = oModel.sServiceUrl + sPath,
+				token = oModel.getSecurityToken();
+			jQuery.ajax({
+				url: url,
+				method: "PATCH",
+				contentType: "application/json",
+				headers: {
+					"X-CSRF-TOKEN": token
+				},
+				data: JSON.stringify(patch),
+				success: function() {
+					MessageToast.show("The service request was set to completed");
+                    that.getModel().refresh();
+                    that.app.setBusy(false);
+				}.bind(this),
+				error: function(jqXHR) {
+					var elm = jqXHR.responseXML.getElementsByTagName("message")[0];
+					var error = elm.innerHTML || elm.textContent;
+					MessageBox.error(error);
+				},
+				complete: function() {
+					this.app.setBusy(false);
+					this._setEditMode(false);
+				}.bind(this)
+			});
+        },
+        onSetToReject: function(oEvent) {
+
+			var patch = {ServiceRequestUserLifeCycleStatusCode: "7"},
+				oModel = this.getModel(),
+				oView = this.getView();
+			// this.app.setBusy(true);
+			var sPath = oView.getElementBinding().getPath(),
+				url = oModel.sServiceUrl + sPath,
+				token = oModel.getSecurityToken();
+			jQuery.ajax({
+				url: url,
+				method: "PATCH",
+				contentType: "application/json",
+				headers: {
+					"X-CSRF-TOKEN": token
+				},
+				data: JSON.stringify(patch),
+				success: function() {
+					MessageToast.show("The service request was set to completed");
+					// this.getModel().refresh();
+				}.bind(this),
+				error: function(jqXHR) {
+					var elm = jqXHR.responseXML.getElementsByTagName("message")[0];
+					var error = elm.innerHTML || elm.textContent;
+					MessageBox.error(error);
+				},
+				complete: function() {
+					// this.app.setBusy(false);
+					this._setEditMode(false);
+				}.bind(this)
+			});
+        },
+        onSubmitRejectPress: function () {
+			if (!this.oSubmitDialog) {
+				this.oSubmitDialog = new Dialog({
+					type: DialogType.Message,
+					title: "Confirm",
+					content: [
+						new Label({
+							text: "Please provide the Rejection Note",
+							labelFor: "submissionNote"
+						}),
+						new TextArea("submissionNote", {
+							width: "100%",
+							placeholder: "Add note (required)",
+							liveChange: function (oEvent) {
+								var sText = oEvent.getParameter("value");
+								this.oSubmitDialog.getBeginButton().setEnabled(sText.length > 0);
+							}.bind(this)
+						})
+					],
+					beginButton: new Button({
+						type: ButtonType.Emphasized,
+						text: "Submit",
+						enabled: false,
+						press: function () {
+							var sText = Core.byId("submissionNote").getValue();
+                            MessageToast.show("Note is: " + sText);
+                            this.onSetToReject();
+                            this.onPostRejectionNotes(sText);
+							this.oSubmitDialog.close();
+						}.bind(this)
+					}),
+					endButton: new Button({
+						text: "Cancel",
+						press: function () {
+							this.oSubmitDialog.close();
+						}.bind(this)
+					})
+				});
+			}
+
+			this.oSubmitDialog.open();
+        },
+        onPostRejectionNotes: function(onote) {
+			var view = this.getView(),
+				model = view.getModel(),
+				sPath = view.getElementBinding().getPath(),
+				authorUUID = this.getOwnerComponent().contactUUID,
+				text = onote;
+			
+				var url = model.sServiceUrl + sPath + "/ServiceRequestTextCollection",
+					token = model.getSecurityToken();
+				// this.app.setBusy(true);
+				jQuery.ajax({
+					url: url,
+					method: "POST",
+					contentType: "application/json",
+					headers: {
+						"X-CSRF-TOKEN": token
+					},
+					data: JSON.stringify({
+						TypeCode: "10008",
+						AuthorUUID: authorUUID,
+						Text: text
+					}),
+					success: function() {
+                        this.getModel().refresh();
+                        // this.app.setBusy(true);
+					}.bind(this),
+					error: function(jqXHR) {
+						var error = jqXHR.responseJSON.error.message.value;
+                        MessageBox.error(error);
+                        this.app.setBusy(true);
+					},
+					complete: function() {
+						this.app.setBusy(false);
+					}.bind(this)
+				});
 		},
 	});
 

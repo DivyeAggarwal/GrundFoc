@@ -150,10 +150,10 @@
             </IconTabBar>
         </semantic:content>
         <semantic:positiveAction>
-            <semantic:PositiveAction text="Accept Solution" id="setToAcceptBtn" press="onSetToComplete" visible="false"/>
+            <semantic:PositiveAction text="Accept Solution" id="setToAcceptBtn" press="onSetToAccept" visible="false"/>
         </semantic:positiveAction>
         <semantic:negativeAction>
-            <semantic:NegativeAction text="Reject Solution" id="setToRejectBtn" press="onSetToComplete" visible="false"/>
+            <semantic:NegativeAction text="Reject Solution" id="setToRejectBtn" press="onSubmitRejectPress" visible="false"/>
         </semantic:negativeAction>
         <semantic:editAction>
             <semantic:EditAction id="edit" press="onEdit"/>
