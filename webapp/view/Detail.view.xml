@@ -14,11 +14,11 @@
                         <VBox class="detailsBox">
 
                             <HBox>
-                                <Label class="infoTitle" text="Ticket ID"/>
+                                <!-- <Label class="infoTitle" text="Ticket ID"/>
                                 <Input id="infoTicketID" width="10rem" enabled="false"
                                         >
                                        
-                                </Input>
+                                </Input> -->
                             </HBox>
                             <HBox>
                                 <Label class="infoTitle" text="Subject"/>

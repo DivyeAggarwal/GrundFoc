@@ -27,13 +27,14 @@ sap.ui.define([
 			this._oErrorHandler = new ErrorHandler(this);
 
 			// set the device model
-			this.setModel(models.createDeviceModel(), "device");
+            this.setModel(models.createDeviceModel(), "device");
 
 			// call the base component's init function and create the App view
 			UIComponent.prototype.init.apply(this, arguments);
 
 			// create the views based on the url/hash
-			this.getRouter().initialize();
+            this.getRouter().initialize();
+            
 		},
 
 		/**

@@ -365,27 +365,15 @@ sap.ui.define([
 			}
 
 			
-            // var data = {
-			// 	ReporterPartyID: this.contactID,
-			// 	Name: {
-			// 		content: titleInput.getValue()
-			// 	},
-			// 	ServiceRequestLifeCycleStatusCode: "1",
-			// 	ServicePriorityCode: core.byId("createPriority").getSelectedKey(),
-			// 	ProductID: core.byId("createProductCategory").getSelectedKey(),
-			// 	ServiceIssueCategoryID: core.byId("createServiceCategory").getSelectedKey(),
-			// 	IncidentServiceIssueCategoryID: core.byId("createIncidentCategory").getSelectedKey()
-            // };
             var data = {
                 "ProcessingTypeCode":"ZDO",
-                "ProductRecipientPartyID": "DC100",
                 "IncidentServiceIssueCategoryID": "GIM-CN",
                 "ProcessingTypeCode": "ZDO",
-                "Name": core.byId("createTitle").getValue(),
-                "ServicePriorityCode": core.byId("createPriority").getSelectedKey()
-                // "ServiceStatusCode": core.byId("createStatus").getSelectedKey()
+                "DataOriginTypeCode": "4",
+                "Name": core.byId("createTitle").getValue()
             };
 
+            this.oDialog.setBusy(true);
             var model = view.getModel(),
 					url = model.sServiceUrl + "/ServiceRequestCollection",
                     token = model.getSecurityToken();
@@ -511,12 +499,32 @@ sap.ui.define([
         setTicketDescription: function(result) {
 			if (!this.mockData) {
 				var model = this.getModel(),
-					authorUUID = this.component.contactUUID,
+					authorUUID = this.getOwnerComponent().contactUUID,
 					elm = result.getElementsByTagName("id")[0],
 					baseUrl = elm.innerHTML || elm.textContent,
 					url = baseUrl + "/ServiceRequestTextCollection",
 					text = sap.ui.getCore().byId("createDescription").getValue(),
-					token = model.getSecurityToken();
+                    token = model.getSecurityToken();
+                    
+                    jQuery.ajax({
+					url: url,
+					method: "GET",
+					// contentType: "application/json",
+					headers: {
+						"X-CSRF-TOKEN": fetch
+					},
+					// data: JSON.stringify(dataMock),
+					success: function(oData) {
+                        var t = oData.responseHeaders;
+                    },
+					error: function(jqXHR) {
+						var elm = jqXHR.responseXML.getElementsByTagName("message")[0];
+						var error = elm.innerHTML || elm.textContent;
+						MessageBox.error("The service request was created successfully, but the attachment could not be uploaded: " + error);
+						this.oDialog.setBusy(false);
+					}
+				});
+
 				jQuery.ajax({
 					url: url,
 					method: "POST",
@@ -533,8 +541,8 @@ sap.ui.define([
 						this.uploadAttachment(result);
 					}.bind(this),
 					error: function(jqXHR) {
-						var error = jqXHR.responseJSON.error.message.value;
-						MessageBox.error("The service request was created successfully, but a description could not be set: " + error);
+						// var error = jqXHR.responseJSON.error.message.value;
+						MessageBox.error("The service request was created successfully, but a description could not be set: ");
 						this.oDialog.setBusy(false);
 					}
 				});
@@ -572,7 +580,8 @@ sap.ui.define([
 				var dataMock = {
 					Name: this.fileToUpload.name,
 					Binary: window.btoa(e.target.result)
-				};
+                };
+
 				jQuery.ajax({
 					url: url,
 					method: "POST",

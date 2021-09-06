@@ -18,7 +18,15 @@
                     "odataVersion": "2.0",
                     "localUri": "localService/metadata.xml"
                 }
-            }
+            },
+            "mainServiceCustom": {
+                "uri": "/sap/c4c/odata/cust/v1/zcountrycontact/",
+                "type": "OData",
+                "settings": {
+                    "odataVersion": "2.0",
+                    "localUri": "localService/metadata.xml"
+                }
+            }            
         }
     },
     "sap.ui": {
@@ -66,6 +74,10 @@
             "": {
                 "dataSource": "mainService",
                 "preload": true
+            },
+            "custom": {
+                "dataSource": "mainServiceCustom",
+                "preload": true
             }
         },
         "routing": {
@@ -83,6 +95,11 @@
             "routes": [
                 {
                     "pattern": "",
+                    "name": "contact",
+                    "target": "contact"
+                },
+                {
+                    "pattern": "master",
                     "name": "master",
                     "target": "master"
                 },
@@ -100,6 +117,11 @@
                     "viewName": "Master",
                     "viewLevel": 1,
                     "viewId": "master"
+                },
+                "contact": {
+                    "viewName": "Contact",
+                    "viewLevel": 1,
+                    "viewId": "contact"
                 },
                 "object": {
                     "viewName": "Detail",

@@ -1,106 +1,75 @@
 <mvc:View
 	controllerName="servicerequests.controller.Contact"
-	xmlns:mvc="sap.ui.core.mvc" xmlns="sap.m"
-          xmlns:semantic="sap.m.semantic">
-    <Table id="idProductsTable"
+	xmlns:mvc="sap.ui.core.mvc"
+	xmlns:core="sap.ui.core"
+	xmlns="sap.m">
+    <!-- <Panel
+		id="containerLayout"
+		width="70%"> -->
+        <Page
+		title="Page"
+		class="sapUiContentPadding" >
+        <customHeader>
+			<Toolbar>
+				<!-- <Button type="Back" press="onPress" /> -->
+				<ToolbarSpacer/>
+				<Title text="Welcome to self service portal" level="H2"/>
+				<ToolbarSpacer/>
+				<!-- <Button icon="sap-icon://edit" type="Transparent" press="onPress" ariaLabelledBy="editButtonLabel"/> -->
+			</Toolbar>
+
+		</customHeader>
+    <Table id="idProductsTable" width="70%"
 		inset="false"
 		items="{
-			path: '/ProductCollection',
+			path: '/CountryContactsRootCollection',
 			sorter: {
-				path: 'Name'
+				path: 'ZContactMatrixID'
 			}
 		}">
-		<headerToolbar>
-			<OverflowToolbar>
-				<content>
-					<Title text="Products" level="H2"/>
-					<ToolbarSpacer />
-					<ComboBox id="idPopinLayout"
-						placeholder="Popin layout options"
-						change="onPopinLayoutChanged">
-						<items>
-							<core:Item  text="Block"
-								key="Block"/>
-							<core:Item  text="Grid Large"
-								key="GridLarge"/>
-							<core:Item  text="Grid Small"
-								key="GridSmall"/>
-						</items>
-					</ComboBox>
-					<Label text="Sticky options:" />
-					<CheckBox text="ColumnHeaders"
-						select="onSelect"/>
-					<CheckBox text="HeaderToolbar"
-						select="onSelect"/>
-					<CheckBox text="InfoToolbar"
-						select="onSelect"/>
-					<ToggleButton id="toggleInfoToolbar"
-						text="Hide/Show InfoToolbar"
-						press="onToggleInfoToolbar" />
-				</content>
-			</OverflowToolbar>
-		</headerToolbar>
+		
+        <headerToolbar>
+									<Toolbar>
+										<Title text=""/>
+										<ToolbarSpacer/>
+										<Button text="Ticket Portal" press="onAddRelatedDeal" enabled="true" id="idAddRelatedDeal"/>
+                                    </Toolbar>
+								</headerToolbar>
 		<infoToolbar>
 			<OverflowToolbar>
-				<Label text="Wide range of available products"/>
+				<Label text="Available contacts"/>
 			</OverflowToolbar>
 		</infoToolbar>
 		<columns>
 			<Column
-				width="12em">
-				<Text text="Product" />
-			</Column>
-			<Column
 				minScreenWidth="Tablet"
 				demandPopin="true">
-				<Text text="Supplier" />
+				<Text text="Country" />
 			</Column>
 			<Column
 				minScreenWidth="Desktop"
 				demandPopin="true"
 				hAlign="End">
-				<Text text="Dimensions" />
+				<Text text="Phone" />
 			</Column>
 			<Column
 				minScreenWidth="Desktop"
 				demandPopin="true"
 				hAlign="Center">
-				<Text text="Weight" />
-			</Column>
-			<Column
-				hAlign="End">
-				<Text text="Price" />
+				<Text text="Mail" />
 			</Column>
 		</columns>
 		<items>
 			<ColumnListItem>
 				<cells>
 					<ObjectIdentifier
-						title="{Name}"
-						text="{ProductId}"/>
-					<Text
-						text="{SupplierName}" />
-					<Text
-						text="{Width} x {Depth} x {Height} {DimUnit}" />
-					<ObjectNumber
-						number="{WeightMeasure}"
-						unit="{WeightUnit}"
-						state="{
-							parts: [
-								{path: 'WeightMeasure'},
-								{path: 'WeightUnit'}
-							],
-							formatter: 'sap.m.sample.Table.Formatter.weightState'
-						}" />
-					<ObjectNumber
-							number="{
-								parts:[{path:'Price'},{path:'CurrencyCode'}],
-								type: 'sap.ui.model.type.Currency',
-								formatOptions: {showMeasure: false}
-							}"
-							unit="{CurrencyCode}" />
+						text="{ZCountryText}"/>
+                        <ObjectStatus text="{ZCountryPhText}"/>
+                        <ObjectStatus text="{ZCountryMailText}"/>
 				</cells>
 			</ColumnListItem>
 		</items>
 	</Table>
+    </Page>
+    <!-- </Panel> -->
 </mvc:View>
